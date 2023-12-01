@@ -50,9 +50,6 @@ public class DemoController {
 	
 	@PostMapping("/insertData")
     public ResponseEntity<String> insertData(@RequestParam("file") MultipartFile jsonFile) throws IOException {
-//		logger.info("File Request Passed");
-//        service.insertDataFromJsonFiles(jsonFile);
-//        return ResponseEntity.ok("Data inserted successfully");
 		if (jsonFile.isEmpty()) {
             return new ResponseEntity<>("File is empty", HttpStatus.BAD_REQUEST);
         }
@@ -67,4 +64,21 @@ public class DemoController {
             return new ResponseEntity<>("Error processing the file", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+	
+	@PostMapping("/insertDataParallel")
+	public ResponseEntity<String> insertDataP(@RequestParam("file") MultipartFile jsonFile) throws IOException {
+	    if (jsonFile.isEmpty()) {
+	        return new ResponseEntity<>("File is empty", HttpStatus.BAD_REQUEST);
+	    }
+
+	    try {
+	        byte[] bytes = jsonFile.getBytes();
+	        String jsonString = new String(bytes);
+	        service.insertDataFromJsonFilesP(jsonString);
+	        return new ResponseEntity<>("Data inserted successfully", HttpStatus.OK);
+	    } catch (IOException e) {
+	        e.printStackTrace();
+	        return new ResponseEntity<>("Error processing the file", HttpStatus.INTERNAL_SERVER_ERROR);
+	    }
+	}
 }

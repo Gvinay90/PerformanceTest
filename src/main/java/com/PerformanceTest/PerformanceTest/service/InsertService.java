@@ -2,6 +2,7 @@ package com.PerformanceTest.PerformanceTest.service;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,7 +41,6 @@ public class InsertService {
     }
 	
 	public void insertDataFromJsonFiles(String json) {
-
 		try {
             ObjectMapper objectMapper = new ObjectMapper();
             List<Demo> demos = objectMapper.readValue(json, new TypeReference<List<Demo>>() {});
@@ -57,4 +57,27 @@ public class InsertService {
         }
     }
 	
+	public void insertDataFromJsonFilesP(String json) {
+	    try {
+	        ObjectMapper objectMapper = new ObjectMapper();
+	        List<Demo> demos = objectMapper.readValue(json, new TypeReference<List<Demo>>() {});
+
+	        int batchSize = 1000; // Adjust the batch size as needed
+
+	        demos.parallelStream()
+	             .collect(Collectors.groupingByConcurrent(demo -> demos.indexOf(demo) / batchSize))
+	             .values()
+	             .parallelStream()
+	             .forEach(batch -> {
+	                 dataInsertionTimer.record(() -> {
+	                     repository.saveAll(batch);
+	                 });
+	                 // Additional processing or metrics recording can be added here
+	             });
+	    } catch (IOException e) {
+	        logger.error("Error during data insertion: {}", e.getMessage());
+	        failedInsertionCounter.increment();
+	        // Handle the exception as needed
+	    }
+	}
 }
