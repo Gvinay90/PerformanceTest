@@ -26,12 +26,12 @@ public class Demo {
 	public void setName(String name) {
 		this.name = name;
 	}
-	public int getValue() {
+	public Double getValue() {
 		return value;
 	}
-	public void setValue(int value) {
+	public void setValue(Double value) {
 		this.value = value;
 	}
 	private String name;
-	private int value;
+	private Double value;
 }
